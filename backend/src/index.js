@@ -35,6 +35,10 @@ app.use('/submission',submitRouter);
 app.use('/ai',aiRouter);
 app.use("/video",videoRouter);
 
+app.get("/", (req, res) => {
+    res.send("Atharv is awesome");
+});
+
 const InitializeConnection = async ()=>{
 
     try{
