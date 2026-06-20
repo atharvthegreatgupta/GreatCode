@@ -18,11 +18,16 @@ const videoRouter = require("./routes/videoCreator");
 
 const cors = require('cors');
 
-app.use( cors({
+// app.use( cors({
 
-    origin : 'http://localhost:5173', // * for all the host to access
-    credentials : true
-}) )
+//     origin : 'http://localhost:5173', // * for all the host to access
+//     credentials : true
+// }) )
+
+app.use(cors({
+    origin: 'https://my-coding-platform-bhtm.onrender.com',
+    credentials: true
+}))
 
 app.use( express.json() ); // converts json to java script object
 app.use( cookieParser() ); // converts json to java script object
