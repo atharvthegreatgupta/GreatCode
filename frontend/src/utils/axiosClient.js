@@ -1,13 +1,26 @@
-import axios from "axios"
+// import axios from "axios"
 
-const axiosClient =  axios.create({
-    baseURL: 'http://localhost:3000',
+// const axiosClient =  axios.create({
+//     baseURL: 'http://localhost:3000',
+//     withCredentials: true,
+//     headers: {
+//         'Content-Type': 'application/json'
+//     }
+// });
+
+
+// export default axiosClient;
+
+
+
+import axios from "axios";
+
+const axiosClient = axios.create({
+    baseURL: "https://b-coding-platform.onrender.com",
     withCredentials: true,
     headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json"
     }
 });
 
-
 export default axiosClient;
-
