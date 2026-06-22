@@ -24,10 +24,18 @@ const cors = require('cors');
 //     credentials : true
 // }) )
 
+// app.use(cors({
+//     origin: 'https://my-coding-platform-bhtm.onrender.com',
+//     credentials: true
+// }))
+
 app.use(cors({
-    origin: 'https://my-coding-platform-bhtm.onrender.com',
+    origin: [
+        'http://localhost:5173',
+        'https://my-coding-platform-bhtm.onrender.com'
+    ],
     credentials: true
-}))
+}));
 
 app.use( express.json() ); // converts json to java script object
 app.use( cookieParser() ); // converts json to java script object
