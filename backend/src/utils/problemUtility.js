@@ -38,11 +38,26 @@ const submitBatch = async (rawSubmissions) => {
         data: data
     };
 
+    // try {
+    //     const response = await axios.request(config);
+    //     return response.data;
+    // } catch(err) {
+    //     return err.message;
+    // }
+
     try {
         const response = await axios.request(config);
+
+        console.log("===== submitBatch SUCCESS =====");
+        console.log(response.data);
+
         return response.data;
-    } catch(err) {
-        return err.message;
+    } catch (err) {
+        console.log("===== submitBatch ERROR =====");
+        console.log(err.response?.data);
+        console.log(err.message);
+
+        throw err;
     }
 }
 
