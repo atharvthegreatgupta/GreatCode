@@ -1,13 +1,11 @@
-// using namespace std;
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router';
-// import { registerUser } from '../authSlice'; // Assuming this is your path
+import { registerUser } from '../authSlice'; 
 
-// 1. We make Zod super smart with Regex so it matches the backend!
 const signupSchema = z.object({
   firstName: z.string().min(3, "Minimum character should be 3"),
   emailId: z.string().email("Invalid Email"),
@@ -24,14 +22,27 @@ function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated, loading } = useSelector((state) => state.auth);
+  
+  const { isAuthenticated, loading } = useSelector((state) => state.auth); 
 
   const {
     register,
     handleSubmit,
+    watch, 
     formState: { errors },
   } = useForm({ resolver: zodResolver(signupSchema) });
 
+  
+  const passwordValue = watch('password', '');
+
+  
+  const hasLength = passwordValue.length >= 8;
+  const hasLower = /[a-z]/.test(passwordValue);
+  const hasUpper = /[A-Z]/.test(passwordValue);
+  const hasNumber = /[0-9]/.test(passwordValue);
+  const hasSpecial = /[^a-zA-Z0-9]/.test(passwordValue);
+
+  
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
@@ -43,10 +54,10 @@ function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-base-200">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-base-200"> 
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title justify-center text-3xl mb-6">GreatCode</h2>
+          <h2 className="card-title justify-center text-3xl mb-6">GreatCode</h2> 
           <form onSubmit={handleSubmit(onSubmit)}>
             
             {/* First Name Field */}
@@ -57,7 +68,7 @@ function Signup() {
               <input
                 type="text"
                 placeholder="John"
-                className={`input input-bordered w-full ${errors.firstName ? 'input-error' : ''}`} 
+                className={`input input-bordered w-full ${errors.firstName ? 'input-error' : ''}`}
                 {...register('firstName')}
               />
               {errors.firstName && (
@@ -73,7 +84,7 @@ function Signup() {
               <input
                 type="email"
                 placeholder="john@example.com"
-                className={`input input-bordered w-full ${errors.emailId ? 'input-error' : ''}`}
+                className={`input input-bordered w-full ${errors.emailId ? 'input-error' : ''}`} 
                 {...register('emailId')}
               />
               {errors.emailId && (
@@ -95,9 +106,9 @@ function Signup() {
                 />
                 <button
                   type="button"
-                  className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700" 
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? "Hide password" : "Show password"} 
                 >
                   {showPassword ? (
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,24 +122,32 @@ function Signup() {
                   )}
                 </button>
               </div>
-              
-              {/* 2. The Upgraded, "Cutie" Error Message & Hint */}
-              {errors.password ? (
-                <span className="text-error text-sm mt-2">{errors.password.message}</span>
-              ) : (
-                <div className="mt-2 text-xs text-gray-500 bg-base-200 p-3 rounded-lg shadow-inner">
-                  <p className="font-semibold mb-1">Your password must have:</p>
-                  <ul className="list-disc list-inside space-y-1 ml-1">
-                    <li>At least 8 characters</li>
-                    <li>One uppercase & one lowercase letter</li>
-                    <li>One number & one special character</li>
-                  </ul>
-                </div>
-              )}
+
+              {/* 5. The Live UI Checklist */}
+              <div className="mt-3 text-xs bg-base-200 p-3 rounded-lg shadow-inner">
+                <p className="font-semibold mb-2 text-gray-500">Password must contain:</p>
+                <ul className="space-y-1.5 font-medium">
+                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasLength ? 'text-success' : 'text-gray-400'}`}>
+                    <span>{hasLength ? '✓' : '○'}</span> At least 8 characters
+                  </li>
+                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasLower ? 'text-success' : 'text-gray-400'}`}>
+                    <span>{hasLower ? '✓' : '○'}</span> One lowercase letter
+                  </li>
+                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasUpper ? 'text-success' : 'text-gray-400'}`}>
+                    <span>{hasUpper ? '✓' : '○'}</span> One uppercase letter
+                  </li>
+                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasNumber ? 'text-success' : 'text-gray-400'}`}>
+                    <span>{hasNumber ? '✓' : '○'}</span> One number
+                  </li>
+                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasSpecial ? 'text-success' : 'text-gray-400'}`}>
+                    <span>{hasSpecial ? '✓' : '○'}</span> One special character
+                  </li>
+                </ul>
+              </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="form-control mt-8 flex justify-center"> 
+            {/* Submit Button with Loading State */}
+            <div className="form-control mt-8 flex justify-center">
               <button
                 type="submit"
                 className={`btn btn-primary ${loading ? 'loading' : ''}`}
@@ -140,7 +159,7 @@ function Signup() {
           </form>
 
           {/* Login Redirect */}
-          <div className="text-center mt-6">
+          <div className="text-center mt-6"> 
             <span className="text-sm">
               Already have an account?{' '}
               <NavLink to="/login" className="link link-primary">
