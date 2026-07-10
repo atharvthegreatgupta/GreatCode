@@ -118,7 +118,7 @@ function Signup() {
               ) : (
                 <label className="label">
                   <span className="label-text-alt text-gray-500">
-                    Must be 8+ chars with a number, upper, lower, & special char.
+                    
                   </span>
                 </label>
               )}
