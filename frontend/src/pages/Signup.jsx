@@ -118,7 +118,11 @@ function Signup() {
               ) : (
                 <label className="label">
                   <span className="label-text-alt text-gray-500">
-                    
+                    Password must contain atleast 8 characters 
+                    , a number 
+                    , an uppercase letter 
+                    , a lowercase letter 
+                    and a special character
                   </span>
                 </label>
               )}
