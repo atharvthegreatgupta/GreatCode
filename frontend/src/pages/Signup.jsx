@@ -112,19 +112,18 @@ function Signup() {
                 </button>
               </div>
               
-              {/* 2. Error Message or Helpful Hint! */}
+              {/* 2. The Upgraded, "Cutie" Error Message & Hint */}
               {errors.password ? (
-                <span className="text-error text-sm mt-1">{errors.password.message}</span>
+                <span className="text-error text-sm mt-2">{errors.password.message}</span>
               ) : (
-                <label className="label">
-                  <span className="label-text-alt text-gray-500">
-                    Password must contain atleast 8 characters 
-                    , a number 
-                    , an uppercase letter 
-                    , a lowercase letter 
-                    and a special character
-                  </span>
-                </label>
+                <div className="mt-2 text-xs text-gray-500 bg-base-200 p-3 rounded-lg shadow-inner">
+                  <p className="font-semibold mb-1">Your password must have:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-1">
+                    <li>At least 8 characters</li>
+                    <li>One uppercase & one lowercase letter</li>
+                    <li>One number & one special character</li>
+                  </ul>
+                </div>
               )}
             </div>
 
