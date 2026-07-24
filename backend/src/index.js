@@ -18,14 +18,8 @@ const videoRouter = require("./routes/videoCreator");
 
 const cors = require('cors');
 
-// app.use( cors({
-
-//     origin : 'http://localhost:5173', // * for all the host to access
-//     credentials : true
-// }) )
-
 app.use(cors({
-    origin: 'https://my-coding-platform-bhtm.onrender.com',
+    origin: process.env.CLIENT_URL,
     credentials: true
 }))
 
@@ -63,14 +57,3 @@ const InitializeConnection = async ()=>{
 }
 
 InitializeConnection();
-
-
-// main()
-// .then( async ()=>{
-
-//     app.listen( process.env.PORT, ()=>{
-
-//         console.log("server listening at " + process.env.PORT);
-//     })
-
-// } )
