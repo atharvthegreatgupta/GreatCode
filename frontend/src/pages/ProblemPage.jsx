@@ -350,55 +350,34 @@ const ProblemPage = () => {
           <div className={`w-full h-full p-8 overflow-y-auto custom-scrollbar absolute inset-0 animate-fadeIn bg-slate-50/50 ${activeRightTab === 'testcase' ? 'block' : 'hidden'}`}>
             <h3 className="text-2xl font-extrabold text-slate-800 mb-6">Test Results</h3>
             
-            {/* Reverted entirely to your original exact logic for rendering runResult */}
             {runResult ? (
-              <div className={`p-6 rounded-3xl shadow-sm border ${runResult.success ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'}`}>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className={`p-2 rounded-full ${runResult.success ? 'bg-emerald-200' : 'bg-rose-200'}`}>
-                    {runResult.success ? '✅' : '❌'}
-                  </div>
-                  <div>
-                    <h4 className={`text-xl font-extrabold ${runResult.success ? 'text-emerald-800' : 'text-rose-800'}`}>
-                      {runResult.success ? 'All test cases passed!' : 'Error / Some test cases failed'}
-                    </h4>
-                    {runResult.success && (
-                      <div className="flex gap-4 mt-1 text-sm font-bold text-emerald-700/80">
-                        <span>⏱️ {runResult.runtime} sec</span>
-                        <span>💾 {runResult.memory} KB</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+              <div className={`p-8 rounded-3xl shadow-sm border text-center ${runResult.success ? 'bg-gradient-to-b from-emerald-50 to-emerald-100/50 border-emerald-200' : 'bg-gradient-to-b from-rose-50 to-rose-100/50 border-rose-200'}`}>
+                <div className="text-6xl mb-4">{runResult.success ? '✅' : '❌'}</div>
                 
-                <div className="space-y-4">
-                  {runResult.testCases?.map((tc, i) => (
-                    <div key={i} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100/50">
-                      <div className="font-mono text-sm space-y-3">
-                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                          <strong className="text-slate-800 font-sans block mb-1">Input:</strong> 
-                          <span className="text-slate-600 break-all whitespace-pre-wrap">{tc.stdin}</span>
-                        </div>
-                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                          <strong className="text-slate-800 font-sans block mb-1">Expected Output:</strong> 
-                          <span className="text-slate-600 break-all whitespace-pre-wrap">{tc.expected_output}</span>
-                        </div>
-                        <div className={`p-3 rounded-lg border ${tc.status_id == 3 ? 'bg-emerald-50/50 border-emerald-100' : 'bg-rose-50/50 border-rose-100'}`}>
-                          <strong className="text-slate-800 font-sans block mb-1">Your Output:</strong> 
-                          <span className="text-slate-600 break-all whitespace-pre-wrap">{tc.stdout}</span>
-                        </div>
-                        <div className={`font-bold font-sans mt-3 flex items-center gap-1 ${tc.status_id == 3 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                          {tc.status_id == 3 ? '✓ Passed' : '✗ Failed'}
-                        </div>
-                      </div>
+                <h4 className={`text-3xl font-extrabold mb-8 ${runResult.success ? 'text-emerald-700' : 'text-rose-700'}`}>
+                  {runResult.success ? 'All test cases passed!' : 'Some test cases failed'}
+                </h4>
+                
+                <div className="flex flex-wrap justify-center gap-4">
+                  {runResult.runtime && (
+                    <div className="bg-white px-6 py-4 rounded-2xl shadow-sm border border-slate-100 flex-1 min-w-[140px]">
+                      <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Runtime</p>
+                      <p className="text-2xl font-extrabold text-slate-700">{runResult.runtime}<span className="text-sm font-semibold ml-1">sec</span></p>
                     </div>
-                  ))}
+                  )}
+                  {runResult.memory && (
+                    <div className="bg-white px-6 py-4 rounded-2xl shadow-sm border border-slate-100 flex-1 min-w-[140px]">
+                      <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Memory</p>
+                      <p className="text-2xl font-extrabold text-slate-700">{runResult.memory}<span className="text-sm font-semibold ml-1">KB</span></p>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-64 bg-white/50 rounded-3xl border-2 border-dashed border-slate-200">
                 <div className="text-4xl mb-4">🧪</div>
                 <p className="text-slate-600 font-bold text-lg">Ready to test</p>
-                <p className="text-slate-400 text-sm mt-1">Click "Run Code" to evaluate the example test cases.</p>
+                <p className="text-slate-400 text-sm mt-1">Click "Run Code" to evaluate your logic.</p>
               </div>
             )}
           </div>
