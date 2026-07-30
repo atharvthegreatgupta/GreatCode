@@ -13,6 +13,16 @@ const langMap = {
   javascript: 'JavaScript'
 };
 
+// Helper: Securely decodes Base64 API responses (Judge0 commonly sends these)
+const safeDecode = (str) => {
+  if (!str) return 'Empty / No Output';
+  try {
+    return decodeURIComponent(escape(atob(str)));
+  } catch (e) {
+    return str; // Return as-is if it wasn't Base64 encoded
+  }
+};
+
 const ProblemPage = () => {
   const [problem, setProblem] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
@@ -66,6 +76,7 @@ const ProblemPage = () => {
   const handleRun = async () => {
     setLoading(true);
     setRunResult(null);
+    setActiveRightTab('testcase'); // Switch tab immediately so user sees loading state
     try {
       const response = await axiosClient.post(`/submission/run/${problemId}`, {
         code,
@@ -73,18 +84,17 @@ const ProblemPage = () => {
       });
       setRunResult(response.data);
       setLoading(false);
-      setActiveRightTab('testcase');
     } catch (error) {
       console.error('Error running code:', error);
       setRunResult({ success: false, error: 'Internal server error' });
       setLoading(false);
-      setActiveRightTab('testcase');
     }
   };
 
   const handleSubmitCode = async () => {
     setLoading(true);
     setSubmitResult(null);
+    setActiveRightTab('result'); // Switch tab immediately so user sees loading state
     try {
       const response = await axiosClient.post(`/submission/submit/${problemId}`, {
         code: code,
@@ -92,12 +102,10 @@ const ProblemPage = () => {
       });
       setSubmitResult(response.data);
       setLoading(false);
-      setActiveRightTab('result');
     } catch (error) {
       console.error('Error submitting code:', error);
       setSubmitResult(null);
       setLoading(false);
-      setActiveRightTab('result');
     }
   };
 
@@ -110,7 +118,6 @@ const ProblemPage = () => {
     }
   };
 
-  // Upgraded custom pastel badges to match homepage
   const getDifficultyBadge = (difficulty) => {
     switch (difficulty.toLowerCase()) {
       case 'easy': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
@@ -128,7 +135,6 @@ const ProblemPage = () => {
     );
   }
 
-  // Reusable Tab Button Component for cleaner code
   const TabButton = ({ active, onClick, children }) => (
     <button
       onClick={onClick}
@@ -142,15 +148,16 @@ const ProblemPage = () => {
     </button>
   );
 
+  // Logic to determine if ALL tests genuinely passed
+  const allTestsPassed = runResult?.testCases ? runResult.testCases.every(tc => tc.status_id === 3) : false;
+
   return (
-    /* Upgraded Background: Full gradient, padded layout for floating panels */
     <div className="h-screen flex p-4 gap-4 bg-gradient-to-br from-violet-200 via-fuchsia-100 to-cyan-200 font-sans overflow-hidden">
       
-      {/* Left Panel: Floating glass card */}
+      {/* Left Panel */}
       <div className="w-1/2 flex flex-col bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 overflow-hidden">
         
-        {/* Sleek Pill Navigation Bar */}
-        <div className="flex p-3 gap-2 bg-white/40 border-b border-white/50 backdrop-blur-md z-10">
+        <div className="flex p-3 gap-2 bg-white/40 border-b border-white/50 backdrop-blur-md z-10 shrink-0">
           <TabButton active={activeLeftTab === 'description'} onClick={() => setActiveLeftTab('description')}>Description</TabButton>
           <TabButton active={activeLeftTab === 'editorial'} onClick={() => setActiveLeftTab('editorial')}>Editorial</TabButton>
           <TabButton active={activeLeftTab === 'solutions'} onClick={() => setActiveLeftTab('solutions')}>Solutions</TabButton>
@@ -158,8 +165,8 @@ const ProblemPage = () => {
           <TabButton active={activeLeftTab === 'chatAI'} onClick={() => setActiveLeftTab('chatAI')}>ChatAI 🤖</TabButton>
         </div>
 
-        {/* Left Content Area */}
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        {/* Added min-h-0 to fix flexbox scroll bug */}
+        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar min-h-0">
           {problem && (
             <div className="animate-fadeIn">
               {activeLeftTab === 'description' && (
@@ -274,23 +281,20 @@ const ProblemPage = () => {
         </div>
       </div>
 
-      {/* Right Panel: The Code Workspace */}
+      {/* Right Panel */}
       <div className="w-1/2 flex flex-col bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 overflow-hidden">
         
-        {/* Sleek Pill Navigation Bar */}
-        <div className="flex p-3 gap-2 bg-white/40 border-b border-white/50 backdrop-blur-md z-10">
+        <div className="flex p-3 gap-2 bg-white/40 border-b border-white/50 backdrop-blur-md z-10 shrink-0">
           <TabButton active={activeRightTab === 'code'} onClick={() => setActiveRightTab('code')}>Code Editor</TabButton>
           <TabButton active={activeRightTab === 'testcase'} onClick={() => setActiveRightTab('testcase')}>Testcases</TabButton>
           <TabButton active={activeRightTab === 'result'} onClick={() => setActiveRightTab('result')}>Results</TabButton>
         </div>
 
-        {/* Right Content Area */}
-        <div className="flex-1 flex flex-col relative bg-slate-50/50">
+        {/* Added min-h-0 to fix flexbox scroll bug */}
+        <div className="flex-1 flex flex-col relative bg-slate-50/50 min-h-0">
           
           {activeRightTab === 'code' && (
             <div className="flex-1 flex flex-col h-full absolute inset-0">
-              
-              {/* Language Toolbar */}
               <div className="flex justify-between items-center p-3 px-5 bg-white border-b border-slate-200">
                 <div className="flex bg-slate-100 p-1 rounded-xl">
                   {['javascript', 'java', 'cpp'].map((lang) => (
@@ -309,7 +313,6 @@ const ProblemPage = () => {
                 </div>
               </div>
 
-              {/* Framed Monaco Editor */}
               <div className="flex-1 p-4 pb-0 bg-slate-50/50">
                 <div className="w-full h-full rounded-t-2xl overflow-hidden shadow-inner border border-slate-200 border-b-0 bg-[#1e1e1e]">
                   <Editor
@@ -334,8 +337,7 @@ const ProblemPage = () => {
                 </div>
               </div>
 
-              {/* High-End Action Toolbar */}
-              <div className="p-4 bg-white border-t border-slate-200 flex justify-between items-center shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)] z-10">
+              <div className="p-4 bg-white border-t border-slate-200 flex justify-between items-center shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)] z-10 shrink-0">
                 <button 
                   className="btn btn-ghost hover:bg-slate-100 rounded-xl text-slate-600 font-bold px-6"
                   onClick={() => setActiveRightTab('testcase')}
@@ -365,22 +367,27 @@ const ProblemPage = () => {
             </div>
           )}
 
-          {/* Testcase Tab Styling */}
           {activeRightTab === 'testcase' && (
-            <div className="flex-1 p-8 overflow-y-auto custom-scrollbar animate-fadeIn">
+            <div className="flex-1 p-8 overflow-y-auto custom-scrollbar min-h-0 animate-fadeIn">
               <h3 className="text-2xl font-extrabold text-slate-800 mb-6">Test Results</h3>
-              {runResult ? (
-                <div className={`p-6 rounded-3xl shadow-sm border ${runResult.success ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'}`}>
+              
+              {loading ? (
+                <div className="flex flex-col items-center justify-center h-64 bg-white/50 rounded-3xl border border-slate-100">
+                  <span className="loading loading-spinner loading-lg text-primary"></span>
+                  <p className="mt-4 font-bold text-slate-600">Running your code...</p>
+                </div>
+              ) : runResult ? (
+                <div className={`p-6 rounded-3xl shadow-sm border ${allTestsPassed ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'}`}>
                   <div className="flex items-center gap-3 mb-6">
-                    <div className={`p-2 rounded-full ${runResult.success ? 'bg-emerald-200' : 'bg-rose-200'}`}>
-                      {runResult.success ? '✅' : '❌'}
+                    <div className={`p-2 rounded-full ${allTestsPassed ? 'bg-emerald-200' : 'bg-rose-200'}`}>
+                      {allTestsPassed ? '✅' : '❌'}
                     </div>
                     <div>
-                      <h4 className={`text-xl font-extrabold ${runResult.success ? 'text-emerald-800' : 'text-rose-800'}`}>
-                        {runResult.success ? 'All test cases passed!' : 'Compilation / Runtime Error'}
+                      <h4 className={`text-xl font-extrabold ${allTestsPassed ? 'text-emerald-800' : 'text-rose-800'}`}>
+                        {allTestsPassed ? 'All test cases passed!' : 'Some test cases failed'}
                       </h4>
-                      {runResult.success && (
-                        <div className="flex gap-4 mt-1 text-sm font-bold text-emerald-600/80">
+                      {runResult.runtime && (
+                        <div className="flex gap-4 mt-1 text-sm font-bold text-emerald-700/80">
                           <span>⏱️ {runResult.runtime} sec</span>
                           <span>💾 {runResult.memory} KB</span>
                         </div>
@@ -394,15 +401,15 @@ const ProblemPage = () => {
                         <div className="font-mono text-sm space-y-3">
                           <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                             <strong className="text-slate-800 font-sans block mb-1">Input:</strong> 
-                            <span className="text-slate-600 break-all">{tc.stdin}</span>
+                            <span className="text-slate-600 break-all whitespace-pre-wrap">{safeDecode(tc.stdin)}</span>
                           </div>
                           <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                             <strong className="text-slate-800 font-sans block mb-1">Expected Output:</strong> 
-                            <span className="text-slate-600 break-all">{tc.expected_output}</span>
+                            <span className="text-slate-600 break-all whitespace-pre-wrap">{safeDecode(tc.expected_output)}</span>
                           </div>
                           <div className={`p-3 rounded-lg border ${tc.status_id === 3 ? 'bg-emerald-50/50 border-emerald-100' : 'bg-rose-50/50 border-rose-100'}`}>
                             <strong className="text-slate-800 font-sans block mb-1">Your Output:</strong> 
-                            <span className="text-slate-600 break-all">{tc.stdout || 'N/A'}</span>
+                            <span className="text-slate-600 break-all whitespace-pre-wrap">{safeDecode(tc.stdout) || safeDecode(tc.stderr) || safeDecode(tc.compile_output)}</span>
                           </div>
                           <div className={`font-bold font-sans mt-3 flex items-center gap-1 ${tc.status_id === 3 ? 'text-emerald-600' : 'text-rose-600'}`}>
                             {tc.status_id === 3 ? '✓ Test Passed' : '✗ Test Failed'}
@@ -422,11 +429,16 @@ const ProblemPage = () => {
             </div>
           )}
 
-          {/* Result Tab Styling */}
           {activeRightTab === 'result' && (
-            <div className="flex-1 p-8 overflow-y-auto custom-scrollbar animate-fadeIn">
+            <div className="flex-1 p-8 overflow-y-auto custom-scrollbar min-h-0 animate-fadeIn">
               <h3 className="text-2xl font-extrabold text-slate-800 mb-6">Submission Result</h3>
-              {submitResult ? (
+              
+              {loading ? (
+                <div className="flex flex-col items-center justify-center h-64 bg-white/50 rounded-3xl border border-slate-100">
+                  <span className="loading loading-spinner loading-lg text-primary"></span>
+                  <p className="mt-4 font-bold text-slate-600">Evaluating submission...</p>
+                </div>
+              ) : submitResult ? (
                 <div className={`p-8 rounded-3xl shadow-sm border text-center ${submitResult.accepted ? 'bg-gradient-to-b from-emerald-50 to-emerald-100/50 border-emerald-200' : 'bg-gradient-to-b from-rose-50 to-rose-100/50 border-rose-200'}`}>
                   <div className="text-6xl mb-4">{submitResult.accepted ? '🎉' : '💔'}</div>
                   <h4 className={`text-3xl font-extrabold mb-6 ${submitResult.accepted ? 'text-emerald-700' : 'text-rose-700'}`}>
