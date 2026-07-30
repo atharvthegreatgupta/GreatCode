@@ -33,30 +33,25 @@ function Login() {
   };
 
   return (
-    /* Upgraded Background: Soft, modern gradient to make the card pop */
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-violet-200 via-fuchsia-100 to-cyan-200">
       
-      /* Upgraded Card: Bigger shadow, softer rounded corners */
-      <div className="card w-full max-w-md bg-white shadow-2xl rounded-3xl border border-gray-100">
+      <div className="card w-full max-w-md bg-white shadow-2xl rounded-3xl border border-white/50 backdrop-blur-sm">
         <div className="card-body p-8"> 
           
-          {/* Upgraded Header: Stronger typography and a friendly subtitle */}
           <div className="text-center mb-8">
-            <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">GreatCode</h2>
-            <p className="text-sm text-gray-500">Welcome back! Please enter your details.</p>
+            <h2 className="text-4xl font-extrabold text-slate-800 tracking-tight mb-2">GreatCode</h2>
+            <p className="text-sm text-slate-500">Welcome back! Please enter your details.</p>
           </div>
           
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Email Field */}
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium text-gray-700">Email</span>
+                <span className="label-text font-semibold text-slate-700">Email</span>
               </label>
               <input
                 type="email"
                 placeholder="john@example.com"
-                /* Upgraded Inputs: Softer corners, smooth transition, and a focus ring */
-                className={`input input-bordered w-full rounded-xl bg-gray-50 focus:bg-white transition-colors duration-200 ${errors.emailId ? 'input-error focus:ring-error' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'}`} 
+                className={`input input-bordered w-full rounded-xl bg-slate-50 text-slate-800 placeholder-slate-400 focus:bg-white transition-colors duration-200 ${errors.emailId ? 'input-error focus:ring-error' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'}`} 
                 {...register('emailId')}
               />
               {errors.emailId && (
@@ -67,21 +62,20 @@ function Login() {
               )}
             </div>
 
-            {/* Password Field */}
             <div className="form-control">
               <label className="label pb-1">
-                <span className="label-text font-medium text-gray-700">Password</span>
+                <span className="label-text font-semibold text-slate-700">Password</span>
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  className={`input input-bordered w-full pr-10 rounded-xl bg-gray-50 focus:bg-white transition-colors duration-200 ${errors.password ? 'input-error focus:ring-error' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'}`}
+                  className={`input input-bordered w-full pr-10 rounded-xl bg-slate-50 text-slate-800 placeholder-slate-400 focus:bg-white transition-colors duration-200 ${errors.password ? 'input-error focus:ring-error' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'}`}
                   {...register('password')}
                 />
                 <button
                   type="button"
-                  className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
@@ -105,11 +99,10 @@ function Login() {
               )}
             </div>
 
-            {/* Upgraded Button: Thicker, softly rounded, with a nice hover shadow */}
             <div className="form-control mt-8">
               <button
                 type="submit"
-                className={`btn btn-primary w-full rounded-xl text-base font-semibold shadow-md hover:shadow-lg transition-all duration-200 ${loading ? 'loading btn-disabled' : ''}`} 
+                className={`btn btn-primary w-full rounded-xl text-base font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${loading ? 'loading btn-disabled' : ''}`} 
                 disabled={loading}
               >
                 {loading ? (
@@ -122,11 +115,10 @@ function Login() {
             </div>
           </form>
 
-          {/* Upgraded Footer: Cleaner spacing and font weights */}
           <div className="text-center mt-8">
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-slate-600">
               Don't have an account?{' '} 
-              <NavLink to="/signup" className="link link-primary font-semibold hover:text-primary-focus transition-colors">
+              <NavLink to="/signup" className="link link-primary font-bold hover:text-primary-focus transition-colors">
                 Sign Up
               </NavLink>
             </span>
