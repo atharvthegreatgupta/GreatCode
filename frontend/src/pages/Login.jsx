@@ -6,7 +6,6 @@ import { useNavigate, NavLink } from 'react-router';
 import { loginUser } from "../authSlice";
 import { useEffect, useState } from 'react';
 
-
 const loginSchema = z.object({
   emailId: z.string().email("Invalid Email"),
   password: z.string().min(8, "Password is too weak") 
@@ -21,7 +20,7 @@ function Login() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(loginSchema) }); // Using renamed schema
+  } = useForm({ resolver: zodResolver(loginSchema) });
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -34,42 +33,55 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-base-200"> {/* Added bg for contrast */}
-      <div className="card w-96 bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title justify-center text-3xl mb-6">GreatCode</h2> {/* Added mb-6 */}
-
+    /* Upgraded Background: Soft, modern gradient to make the card pop */
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+      
+      /* Upgraded Card: Bigger shadow, softer rounded corners */
+      <div className="card w-full max-w-md bg-white shadow-2xl rounded-3xl border border-gray-100">
+        <div className="card-body p-8"> 
           
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-control"> {/* Removed mt-4 from first form-control for tighter spacing to title or global error */}
-              <label className="label"> {/* Removed mb-1, default spacing should be fine */}
-                <span className="label-text">Email</span>
+          {/* Upgraded Header: Stronger typography and a friendly subtitle */}
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">GreatCode</h2>
+            <p className="text-sm text-gray-500">Welcome back! Please enter your details.</p>
+          </div>
+          
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* Email Field */}
+            <div className="form-control">
+              <label className="label pb-1">
+                <span className="label-text font-medium text-gray-700">Email</span>
               </label>
               <input
                 type="email"
                 placeholder="john@example.com"
-                className={`input input-bordered w-full ${errors.emailId ? 'input-error' : ''}`} 
+                /* Upgraded Inputs: Softer corners, smooth transition, and a focus ring */
+                className={`input input-bordered w-full rounded-xl bg-gray-50 focus:bg-white transition-colors duration-200 ${errors.emailId ? 'input-error focus:ring-error' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'}`} 
                 {...register('emailId')}
               />
               {errors.emailId && (
-                <span className="text-error text-sm mt-1">{errors.emailId.message}</span>
+                <span className="text-error text-sm mt-1.5 font-medium flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  {errors.emailId.message}
+                </span>
               )}
             </div>
 
-            <div className="form-control mt-4">
-              <label className="label">
-                <span className="label-text">Password</span>
+            {/* Password Field */}
+            <div className="form-control">
+              <label className="label pb-1">
+                <span className="label-text font-medium text-gray-700">Password</span>
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  className={`input input-bordered w-full pr-10 ${errors.password ? 'input-error' : ''}`}
+                  className={`input input-bordered w-full pr-10 rounded-xl bg-gray-50 focus:bg-white transition-colors duration-200 ${errors.password ? 'input-error focus:ring-error' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'}`}
                   {...register('password')}
                 />
                 <button
                   type="button"
-                  className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
@@ -86,14 +98,18 @@ function Login() {
                 </button>
               </div>
               {errors.password && (
-                <span className="text-error text-sm mt-1">{errors.password.message}</span>
+                <span className="text-error text-sm mt-1.5 font-medium flex items-center gap-1">
+                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  {errors.password.message}
+                </span>
               )}
             </div>
 
-            <div className="form-control mt-8 flex justify-center">
+            {/* Upgraded Button: Thicker, softly rounded, with a nice hover shadow */}
+            <div className="form-control mt-8">
               <button
                 type="submit"
-                className={`btn btn-primary ${loading ? 'loading btn-disabled' : ''}`} // Added btn-disabled for better UX with loading
+                className={`btn btn-primary w-full rounded-xl text-base font-semibold shadow-md hover:shadow-lg transition-all duration-200 ${loading ? 'loading btn-disabled' : ''}`} 
                 disabled={loading}
               >
                 {loading ? (
@@ -101,18 +117,21 @@ function Login() {
                     <span className="loading loading-spinner"></span>
                     Logging in...
                   </>
-                ) : 'Login'}
+                ) : 'Log In'}
               </button>
             </div>
           </form>
-          <div className="text-center mt-6">
-            <span className="text-sm">
-              Don't have an account?{' '} {/* Adjusted text slightly */}
-              <NavLink to="/signup" className="link link-primary">
+
+          {/* Upgraded Footer: Cleaner spacing and font weights */}
+          <div className="text-center mt-8">
+            <span className="text-sm text-gray-600">
+              Don't have an account?{' '} 
+              <NavLink to="/signup" className="link link-primary font-semibold hover:text-primary-focus transition-colors">
                 Sign Up
               </NavLink>
             </span>
           </div>
+
         </div>
       </div>
     </div>
