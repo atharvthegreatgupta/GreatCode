@@ -13,17 +13,6 @@ const langMap = {
   javascript: 'JavaScript'
 };
 
-// Helper: Securely decodes Base64 API responses without crashing on normal strings
-const safeDecode = (str) => {
-  if (str === null || str === undefined) return '';
-  const strVal = String(str);
-  try {
-    return decodeURIComponent(escape(atob(strVal)));
-  } catch (e) {
-    return strVal; 
-  }
-};
-
 const ProblemPage = () => {
   const [problem, setProblem] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
@@ -46,9 +35,9 @@ const ProblemPage = () => {
         const initialCode = response.data.startCode.find(sc => sc.language === langMap[selectedLanguage]).initialCode;
         setProblem(response.data);
         setCode(initialCode);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching problem:', error);
-      } finally {
         setLoading(false);
       }
     };
@@ -74,24 +63,30 @@ const ProblemPage = () => {
     setSelectedLanguage(language);
   };
 
+  // Reverted to your exact original handleRun logic
   const handleRun = async () => {
     setLoading(true);
     setRunResult(null);
     try {
       const response = await axiosClient.post(`/submission/run/${problemId}`, {
-        code: code,
+        code,
         language: selectedLanguage
       });
       setRunResult(response.data);
+      setLoading(false);
+      setActiveRightTab('testcase');
     } catch (error) {
       console.error('Error running code:', error);
-      setRunResult({ success: false, error: 'Internal server error' });
-    } finally {
+      setRunResult({
+        success: false,
+        error: 'Internal server error'
+      });
       setLoading(false);
-      setActiveRightTab('testcase'); 
+      setActiveRightTab('testcase');
     }
   };
 
+  // Reverted to your exact original handleSubmitCode logic
   const handleSubmitCode = async () => {
     setLoading(true);
     setSubmitResult(null);
@@ -101,12 +96,13 @@ const ProblemPage = () => {
         language: selectedLanguage
       });
       setSubmitResult(response.data);
+      setLoading(false);
+      setActiveRightTab('result');
     } catch (error) {
       console.error('Error submitting code:', error);
-      setSubmitResult({ accepted: false, error: 'Internal server error' });
-    } finally {
+      setSubmitResult(null);
       setLoading(false);
-      setActiveRightTab('result'); 
+      setActiveRightTab('result');
     }
   };
 
@@ -149,9 +145,6 @@ const ProblemPage = () => {
     </button>
   );
 
-  // FIX 1: Casting tc.status_id to a Number to bypass strict equality bugs
-  const allTestsPassed = runResult?.testCases ? runResult.testCases.every(tc => Number(tc.status_id) === 3) : false;
-
   return (
     <div className="h-screen flex p-4 gap-4 bg-gradient-to-br from-violet-200 via-fuchsia-100 to-cyan-200 font-sans overflow-hidden">
       
@@ -169,7 +162,6 @@ const ProblemPage = () => {
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar min-h-0 relative">
           {problem && (
             <>
-              {/* FIX 2: CSS hiding instead of conditional rendering for tabs */}
               <div className={`animate-fadeIn ${activeLeftTab === 'description' ? 'block' : 'hidden'}`}>
                 <div className="flex flex-wrap items-center gap-3 mb-8 pb-4 border-b border-slate-200/60">
                   <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">{problem.title}</h1>
@@ -283,7 +275,6 @@ const ProblemPage = () => {
 
         <div className="flex-1 relative bg-slate-50/50 min-h-0">
           
-          {/* FIX 2: CSS hiding keeps Monaco perfectly mounted and completely prevents lag */}
           <div className={`w-full h-full flex-col absolute inset-0 ${activeRightTab === 'code' ? 'flex' : 'hidden'}`}>
             <div className="flex justify-between items-center p-3 px-5 bg-white border-b border-slate-200">
               <div className="flex bg-slate-100 p-1 rounded-xl">
@@ -359,17 +350,18 @@ const ProblemPage = () => {
           <div className={`w-full h-full p-8 overflow-y-auto custom-scrollbar absolute inset-0 animate-fadeIn bg-slate-50/50 ${activeRightTab === 'testcase' ? 'block' : 'hidden'}`}>
             <h3 className="text-2xl font-extrabold text-slate-800 mb-6">Test Results</h3>
             
+            {/* Reverted entirely to your original exact logic for rendering runResult */}
             {runResult ? (
-              <div className={`p-6 rounded-3xl shadow-sm border ${allTestsPassed ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'}`}>
+              <div className={`p-6 rounded-3xl shadow-sm border ${runResult.success ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'}`}>
                 <div className="flex items-center gap-3 mb-6">
-                  <div className={`p-2 rounded-full ${allTestsPassed ? 'bg-emerald-200' : 'bg-rose-200'}`}>
-                    {allTestsPassed ? '✅' : '❌'}
+                  <div className={`p-2 rounded-full ${runResult.success ? 'bg-emerald-200' : 'bg-rose-200'}`}>
+                    {runResult.success ? '✅' : '❌'}
                   </div>
                   <div>
-                    <h4 className={`text-xl font-extrabold ${allTestsPassed ? 'text-emerald-800' : 'text-rose-800'}`}>
-                      {allTestsPassed ? 'All test cases passed!' : 'Some test cases failed'}
+                    <h4 className={`text-xl font-extrabold ${runResult.success ? 'text-emerald-800' : 'text-rose-800'}`}>
+                      {runResult.success ? 'All test cases passed!' : 'Error / Some test cases failed'}
                     </h4>
-                    {runResult.runtime && (
+                    {runResult.success && (
                       <div className="flex gap-4 mt-1 text-sm font-bold text-emerald-700/80">
                         <span>⏱️ {runResult.runtime} sec</span>
                         <span>💾 {runResult.memory} KB</span>
@@ -384,18 +376,18 @@ const ProblemPage = () => {
                       <div className="font-mono text-sm space-y-3">
                         <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                           <strong className="text-slate-800 font-sans block mb-1">Input:</strong> 
-                          <span className="text-slate-600 break-all whitespace-pre-wrap">{safeDecode(tc.stdin)}</span>
+                          <span className="text-slate-600 break-all whitespace-pre-wrap">{tc.stdin}</span>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
                           <strong className="text-slate-800 font-sans block mb-1">Expected Output:</strong> 
-                          <span className="text-slate-600 break-all whitespace-pre-wrap">{safeDecode(tc.expected_output)}</span>
+                          <span className="text-slate-600 break-all whitespace-pre-wrap">{tc.expected_output}</span>
                         </div>
-                        <div className={`p-3 rounded-lg border ${Number(tc.status_id) === 3 ? 'bg-emerald-50/50 border-emerald-100' : 'bg-rose-50/50 border-rose-100'}`}>
+                        <div className={`p-3 rounded-lg border ${tc.status_id == 3 ? 'bg-emerald-50/50 border-emerald-100' : 'bg-rose-50/50 border-rose-100'}`}>
                           <strong className="text-slate-800 font-sans block mb-1">Your Output:</strong> 
-                          <span className="text-slate-600 break-all whitespace-pre-wrap">{safeDecode(tc.stdout) || safeDecode(tc.stderr) || safeDecode(tc.compile_output)}</span>
+                          <span className="text-slate-600 break-all whitespace-pre-wrap">{tc.stdout}</span>
                         </div>
-                        <div className={`font-bold font-sans mt-3 flex items-center gap-1 ${Number(tc.status_id) === 3 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                          {Number(tc.status_id) === 3 ? '✓ Test Passed' : '✗ Test Failed'}
+                        <div className={`font-bold font-sans mt-3 flex items-center gap-1 ${tc.status_id == 3 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {tc.status_id == 3 ? '✓ Passed' : '✗ Failed'}
                         </div>
                       </div>
                     </div>
@@ -414,25 +406,21 @@ const ProblemPage = () => {
           <div className={`w-full h-full p-8 overflow-y-auto custom-scrollbar absolute inset-0 animate-fadeIn bg-slate-50/50 ${activeRightTab === 'result' ? 'block' : 'hidden'}`}>
             <h3 className="text-2xl font-extrabold text-slate-800 mb-6">Submission Result</h3>
             
+            {/* Reverted entirely to your original exact logic for rendering submitResult */}
             {submitResult ? (
               <div className={`p-8 rounded-3xl shadow-sm border text-center ${submitResult.accepted ? 'bg-gradient-to-b from-emerald-50 to-emerald-100/50 border-emerald-200' : 'bg-gradient-to-b from-rose-50 to-rose-100/50 border-rose-200'}`}>
-                <div className="text-6xl mb-4">{submitResult.accepted ? '🎉' : '💔'}</div>
+                <div className="text-6xl mb-4">{submitResult.accepted ? '🎉' : '❌'}</div>
                 
-                <h4 className={`text-3xl font-extrabold mb-6 ${submitResult.accepted ? 'text-emerald-700' : 'text-rose-700'}`}>
-                  {submitResult.accepted 
-                    ? 'Accepted!' 
-                    : (typeof submitResult.error === 'string' ? submitResult.error : 'Submission Failed')}
-                </h4>
-                
-                <div className="flex flex-wrap justify-center gap-4 mb-6">
-                  <div className="bg-white px-6 py-4 rounded-2xl shadow-sm border border-slate-100 flex-1 min-w-[140px]">
-                    <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Test Cases</p>
-                    <p className={`text-2xl font-extrabold ${submitResult.accepted ? 'text-slate-700' : 'text-rose-600'}`}>
-                      {submitResult.passedTestCases ?? 0} <span className="text-slate-400 text-lg">/ {submitResult.totalTestCases ?? 0}</span>
-                    </p>
-                  </div>
-                  {submitResult.accepted && (
-                    <>
+                {submitResult.accepted ? (
+                  <div>
+                    <h4 className="text-3xl font-extrabold mb-6 text-emerald-700">Accepted!</h4>
+                    <div className="flex flex-wrap justify-center gap-4 mb-6">
+                      <div className="bg-white px-6 py-4 rounded-2xl shadow-sm border border-slate-100 flex-1 min-w-[140px]">
+                        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Test Cases</p>
+                        <p className="text-2xl font-extrabold text-slate-700">
+                          {submitResult.passedTestCases} <span className="text-slate-400 text-lg">/ {submitResult.totalTestCases}</span>
+                        </p>
+                      </div>
                       <div className="bg-white px-6 py-4 rounded-2xl shadow-sm border border-slate-100 flex-1 min-w-[140px]">
                         <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Runtime</p>
                         <p className="text-2xl font-extrabold text-slate-700">{submitResult.runtime}<span className="text-sm font-semibold ml-1">sec</span></p>
@@ -441,16 +429,17 @@ const ProblemPage = () => {
                         <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Memory</p>
                         <p className="text-2xl font-extrabold text-slate-700">{submitResult.memory}<span className="text-sm font-semibold ml-1">KB</span></p>
                       </div>
-                    </>
-                  )}
-                </div>
-
-                {!submitResult.accepted && (submitResult.compile_output || submitResult.stderr || (submitResult.error && typeof submitResult.error !== 'string')) && (
-                  <div className="mt-6 text-left bg-white p-5 rounded-2xl border border-rose-100 shadow-sm max-h-64 overflow-y-auto custom-scrollbar">
-                    <strong className="text-rose-800 text-sm mb-2 block font-sans">Error Details / Output:</strong>
-                    <pre className="text-[13px] text-rose-600 font-mono whitespace-pre-wrap break-words">
-                      {safeDecode(submitResult.compile_output || submitResult.stderr || (typeof submitResult.error === 'object' ? JSON.stringify(submitResult.error, null, 2) : ''))}
-                    </pre>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <h4 className="text-3xl font-extrabold mb-6 text-rose-700">{submitResult.error}</h4>
+                    <div className="bg-white px-6 py-4 rounded-2xl shadow-sm border border-slate-100 inline-block">
+                      <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Test Cases Passed</p>
+                      <p className="text-2xl font-extrabold text-rose-600">
+                        {submitResult.passedTestCases} <span className="text-slate-400 text-lg">/ {submitResult.totalTestCases}</span>
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
