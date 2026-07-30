@@ -32,17 +32,14 @@ function Signup() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(signupSchema) });
 
-  
   const passwordValue = watch('password', '');
 
-  
   const hasLength = passwordValue.length >= 8;
   const hasLower = /[a-z]/.test(passwordValue);
   const hasUpper = /[A-Z]/.test(passwordValue);
   const hasNumber = /[0-9]/.test(passwordValue);
   const hasSpecial = /[^a-zA-Z0-9]/.test(passwordValue);
 
-  
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
@@ -54,59 +51,70 @@ function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-base-200"> 
-      <div className="card w-96 bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title justify-center text-3xl mb-6">GreatCode</h2> 
-          <form onSubmit={handleSubmit(onSubmit)}>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-violet-200 via-fuchsia-100 to-cyan-200"> 
+      <div className="card w-full max-w-md bg-white shadow-2xl rounded-3xl border border-white/50 backdrop-blur-sm">
+        <div className="card-body p-8">
+          
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-extrabold text-slate-800 tracking-tight mb-2">GreatCode</h2>
+            <p className="text-sm text-slate-500">Create your account to get started.</p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             
             {/* First Name Field */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">First Name</span>
+              <label className="label pb-1">
+                <span className="label-text font-semibold text-slate-700">First Name</span>
               </label>
               <input
                 type="text"
                 placeholder="John"
-                className={`input input-bordered w-full ${errors.firstName ? 'input-error' : ''}`}
+                className={`input input-bordered w-full rounded-xl bg-slate-50 text-slate-800 placeholder-slate-400 focus:bg-white transition-colors duration-200 ${errors.firstName ? 'input-error focus:ring-error' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'}`}
                 {...register('firstName')}
               />
               {errors.firstName && (
-                <span className="text-error text-sm mt-1">{errors.firstName.message}</span>
+                <span className="text-error text-sm mt-1.5 font-medium flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  {errors.firstName.message}
+                </span>
               )}
             </div>
 
             {/* Email Field */}
-            <div className="form-control mt-4">
-              <label className="label">
-                <span className="label-text">Email</span>
+            <div className="form-control">
+              <label className="label pb-1">
+                <span className="label-text font-semibold text-slate-700">Email</span>
               </label>
               <input
                 type="email"
                 placeholder="john@example.com"
-                className={`input input-bordered w-full ${errors.emailId ? 'input-error' : ''}`} 
+                className={`input input-bordered w-full rounded-xl bg-slate-50 text-slate-800 placeholder-slate-400 focus:bg-white transition-colors duration-200 ${errors.emailId ? 'input-error focus:ring-error' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'}`} 
                 {...register('emailId')}
               />
               {errors.emailId && (
-                <span className="text-error text-sm mt-1">{errors.emailId.message}</span>
+                <span className="text-error text-sm mt-1.5 font-medium flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  {errors.emailId.message}
+                </span>
               )}
             </div>
 
-            {/* Password Field with Toggle */}
-            <div className="form-control mt-4">
-              <label className="label">
-                <span className="label-text">Password</span>
+            {/* Password Field */}
+            <div className="form-control">
+              <label className="label pb-1">
+                <span className="label-text font-semibold text-slate-700">Password</span>
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  className={`input input-bordered w-full pr-10 ${errors.password ? 'input-error' : ''}`}
+                  className={`input input-bordered w-full pr-10 rounded-xl bg-slate-50 text-slate-800 placeholder-slate-400 focus:bg-white transition-colors duration-200 ${errors.password ? 'input-error focus:ring-error' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'}`}
                   {...register('password')}
                 />
                 <button
                   type="button"
-                  className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700" 
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors" 
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"} 
                 >
@@ -123,50 +131,71 @@ function Signup() {
                 </button>
               </div>
 
-              {/* 5. The Live UI Checklist */}
-              <div className="mt-3 text-xs bg-base-200 p-3 rounded-lg shadow-inner">
-                <p className="font-semibold mb-2 text-gray-500">Password must contain:</p>
-                <ul className="space-y-1.5 font-medium">
-                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasLength ? 'text-success' : 'text-gray-400'}`}>
-                    <span>{hasLength ? '✓' : '○'}</span> At least 8 characters
+              {/* Upgraded Live UI Checklist */}
+              <div className="mt-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm">
+                <p className="font-semibold mb-2 text-slate-600">Password must contain:</p>
+                <ul className="space-y-2 font-medium">
+                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasLength ? 'text-emerald-500' : 'text-slate-400'}`}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      {hasLength ? <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> : <circle cx="12" cy="12" r="8" strokeWidth="2" />}
+                    </svg>
+                    At least 8 characters
                   </li>
-                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasLower ? 'text-success' : 'text-gray-400'}`}>
-                    <span>{hasLower ? '✓' : '○'}</span> One lowercase letter
+                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasLower ? 'text-emerald-500' : 'text-slate-400'}`}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      {hasLower ? <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> : <circle cx="12" cy="12" r="8" strokeWidth="2" />}
+                    </svg>
+                    One lowercase letter
                   </li>
-                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasUpper ? 'text-success' : 'text-gray-400'}`}>
-                    <span>{hasUpper ? '✓' : '○'}</span> One uppercase letter
+                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasUpper ? 'text-emerald-500' : 'text-slate-400'}`}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      {hasUpper ? <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> : <circle cx="12" cy="12" r="8" strokeWidth="2" />}
+                    </svg>
+                    One uppercase letter
                   </li>
-                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasNumber ? 'text-success' : 'text-gray-400'}`}>
-                    <span>{hasNumber ? '✓' : '○'}</span> One number
+                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasNumber ? 'text-emerald-500' : 'text-slate-400'}`}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      {hasNumber ? <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> : <circle cx="12" cy="12" r="8" strokeWidth="2" />}
+                    </svg>
+                    One number
                   </li>
-                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasSpecial ? 'text-success' : 'text-gray-400'}`}>
-                    <span>{hasSpecial ? '✓' : '○'}</span> One special character
+                  <li className={`flex items-center gap-2 transition-colors duration-300 ${hasSpecial ? 'text-emerald-500' : 'text-slate-400'}`}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      {hasSpecial ? <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> : <circle cx="12" cy="12" r="8" strokeWidth="2" />}
+                    </svg>
+                    One special character
                   </li>
                 </ul>
               </div>
             </div>
 
-            {/* Submit Button with Loading State */}
-            <div className="form-control mt-8 flex justify-center">
+            {/* Submit Button */}
+            <div className="form-control mt-8">
               <button
                 type="submit"
-                className={`btn btn-primary ${loading ? 'loading' : ''}`}
+                className={`btn btn-primary w-full rounded-xl text-base font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${loading ? 'loading btn-disabled' : ''}`}
                 disabled={loading}
               >
-                {loading ? 'Signing Up...' : 'Sign Up'}
+                {loading ? (
+                  <>
+                    <span className="loading loading-spinner"></span>
+                    Signing Up...
+                  </>
+                ) : 'Sign Up'}
               </button>
             </div>
           </form>
 
           {/* Login Redirect */}
-          <div className="text-center mt-6"> 
-            <span className="text-sm">
+          <div className="text-center mt-8"> 
+            <span className="text-sm text-slate-600">
               Already have an account?{' '}
-              <NavLink to="/login" className="link link-primary">
-                Login
+              <NavLink to="/login" className="link link-primary font-bold hover:text-primary-focus transition-colors">
+                Log In
               </NavLink>
             </span>
           </div>
+
         </div>
       </div>
     </div>
