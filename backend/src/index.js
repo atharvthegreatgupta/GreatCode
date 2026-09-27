@@ -38,21 +38,21 @@ app.get("/", (req, res) => {
     res.send("Atharv is awesome");
 });
 
-const InitializeConnection = async ()=>{
+redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
-    try{
-        await Promise.all( [main(), redisClient.connect()] );
-        console.log("DB Connected");
+const InitializeConnection = async () => {
+    try {
+        const port = process.env.PORT || 10000;
+        app.listen(port, "0.0.0.0", () => {
+            console.log("Server listening at " + port);
+        });
 
-        app.listen( process.env.PORT, ()=>{
+        await main();
+        await redisClient.connect();
+        console.log("Databases Connected Successfully");
 
-            console.log("server listening at " + process.env.PORT);
-        })
-
-
-    }
-    catch(err){
-        console.log("Error : " + err.message);
+    } catch(err) {
+        console.log("DB Connection Error: " + err.message);
     }
 }
 
